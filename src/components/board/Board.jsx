@@ -4,24 +4,36 @@ import Chess from 'chess.js'
 import React, { Component } from 'react'
 import movemp3 from '../../assets/sounds/public_sound_standard_Move.mp3'
 import capturemp3 from '../../assets/sounds/public_sound_standard_Capture.mp3'
+import errormp3 from '../../assets/sounds/public_sound_standard_Error.mp3'
 
 
 class WithValidation extends Component {
     game = new Chess()
     state = {
         fen: 'start',
-        square: '',
         squareStyles: {},
         lastMoveStyles: {},
+        inCheckStyles: {},
+        rightClickStyles: {},
         history: []
     }
     // initiate sounds
     moveaudio = new Audio(movemp3)
     capturesaudio = new Audio(capturemp3)
+    erroraudio = new Audio(errormp3)
 
     onSquareRightClick = square => {
+        this.setState(prevState => ({
+            rightClickStyles: {
+                ...prevState.rightClickStyles,
+                [square]: { backgroundColor: '#D2691E' }
+            }
+        }))
+    }
+
+    onSquareClick = square => {
         this.setState({
-            squareStyles: { [square]: { backgroundColor: '#D2691E' } },
+            rightClickStyles: {}
         })
     }
 
@@ -59,33 +71,53 @@ class WithValidation extends Component {
             promotion: "q"
         });
 
-        if (move === null) return;
+        console.log(this.game);
 
-        const capturesRegex = new RegExp("x")
-        if(capturesRegex.test(move.san)) {
-            this.capturesaudio.play()
-        } else {
-            this.moveaudio.play()
-        }
-
-        this.setState({
-            square: targetSquare,
-            fen: this.game.fen(),
-            history: this.game.history({ verbose: true }),
-            lastMoveStyles: {
-                [sourceSquare]: {
-                    backgroundColor: 'rgba(155,199,0,0.41)'
-                },
-                [targetSquare]: {
-                    backgroundColor: 'rgba(155,199,0,0.41)'
-                }
+        if (move === null) {
+            this.erroraudio.play()
+            if (this.game.in_check()) {
+                const turn = this.game.turn()
+                const kingSquare = this.game.SQUARES.filter(square => {
+                    return JSON.stringify(this.game.get(square)) === JSON.stringify({ type: 'k', color: turn })
+                })
+                this.setState({
+                    inCheckStyles: {
+                        [kingSquare]: {
+                            backgroundColor: '#A52A2A'
+                        }
+                    }
+                })
             }
-        })
+        } else {
+            const capturesRegex = new RegExp("x")
+
+                this.setState({
+                    fen: this.game.fen(),
+                    history: this.game.history({ verbose: true }),
+                    lastMoveStyles: {
+                        [sourceSquare]: {
+                            backgroundColor: 'rgba(155,199,0,0.41)'
+                        },
+                        [targetSquare]: {
+                            backgroundColor: 'rgba(155,199,0,0.41)'
+                        }
+                    },
+                    inCheckStyles: {},
+                    rightClickStyles: {}
+                })
+            if (capturesRegex.test(move.san)) {
+                this.capturesaudio.play()
+            } else {
+                this.moveaudio.play()
+            }
+        }
     };
 
 
+
+
     render() {
-        const { squareStyles, fen, lastMoveStyles } = this.state
+        const { squareStyles, fen, lastMoveStyles, inCheckStyles, rightClickStyles } = this.state
         return this.props.children({
             position: fen,
             squareStyles,
@@ -93,7 +125,10 @@ class WithValidation extends Component {
             onMouseOverSquare: this.onMouseOverSquare,
             onDrop: this.onDrop,
             onMouseOutSquare: this.onMouseOutSquare,
-            lastMoveStyles: lastMoveStyles
+            lastMoveStyles: lastMoveStyles,
+            inCheckStyles: inCheckStyles,
+            rightClickStyles: rightClickStyles,
+            onSquareClick: this.onSquareClick
         })
     }
 }
@@ -110,16 +145,20 @@ export const Game = () => {
                     onMouseOverSquare,
                     onDrop,
                     onMouseOutSquare,
-                    lastMoveStyles
+                    lastMoveStyles,
+                    inCheckStyles,
+                    rightClickStyles,
+                    onSquareClick
                 }) => (
                     <Chessboard
                         boardStyle={boardStyles}
                         position={position}
                         onSquareRightClick={onSquareRightClick}
-                        squareStyles={Object.assign({}, squareStyles, lastMoveStyles)}
+                        squareStyles={Object.assign({}, squareStyles, lastMoveStyles, inCheckStyles, rightClickStyles)}
                         onMouseOverSquare={onMouseOverSquare}
                         onDrop={onDrop}
                         onMouseOutSquare={onMouseOutSquare}
+                        onSquareClick={onSquareClick}
                     />
                 )}
             </WithValidation>
