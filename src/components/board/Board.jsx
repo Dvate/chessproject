@@ -5,6 +5,7 @@ import React, { Component } from 'react'
 import movemp3 from '../../assets/sounds/public_sound_standard_Move.mp3'
 import capturemp3 from '../../assets/sounds/public_sound_standard_Capture.mp3'
 import errormp3 from '../../assets/sounds/public_sound_standard_Error.mp3'
+import { Clock } from '../clock/Clock'
 
 
 class WithValidation extends Component {
@@ -91,20 +92,20 @@ class WithValidation extends Component {
         } else {
             const capturesRegex = new RegExp("x")
 
-                this.setState({
-                    fen: this.game.fen(),
-                    history: this.game.history({ verbose: true }),
-                    lastMoveStyles: {
-                        [sourceSquare]: {
-                            backgroundColor: 'rgba(155,199,0,0.41)'
-                        },
-                        [targetSquare]: {
-                            backgroundColor: 'rgba(155,199,0,0.41)'
-                        }
+            this.setState({
+                fen: this.game.fen(),
+                history: this.game.history({ verbose: true }),
+                lastMoveStyles: {
+                    [sourceSquare]: {
+                        backgroundColor: 'rgba(155,199,0,0.41)'
                     },
-                    inCheckStyles: {},
-                    rightClickStyles: {}
-                })
+                    [targetSquare]: {
+                        backgroundColor: 'rgba(155,199,0,0.41)'
+                    }
+                },
+                inCheckStyles: {},
+                rightClickStyles: {}
+            })
             if (capturesRegex.test(move.san)) {
                 this.capturesaudio.play()
             } else {
@@ -134,34 +135,37 @@ class WithValidation extends Component {
 }
 
 
-export const Game = () => {
+export const Board = () => {
     return (
-        <div>
-            <WithValidation>
-                {({
-                    position,
-                    squareStyles,
-                    onSquareRightClick,
-                    onMouseOverSquare,
-                    onDrop,
-                    onMouseOutSquare,
-                    lastMoveStyles,
-                    inCheckStyles,
-                    rightClickStyles,
-                    onSquareClick
-                }) => (
-                    <Chessboard
-                        boardStyle={boardStyles}
-                        position={position}
-                        onSquareRightClick={onSquareRightClick}
-                        squareStyles={Object.assign({}, squareStyles, lastMoveStyles, inCheckStyles, rightClickStyles)}
-                        onMouseOverSquare={onMouseOverSquare}
-                        onDrop={onDrop}
-                        onMouseOutSquare={onMouseOutSquare}
-                        onSquareClick={onSquareClick}
-                    />
-                )}
-            </WithValidation>
+        <div className='container'>
+            <div className='board'>
+                <WithValidation>
+                    {({
+                        position,
+                        squareStyles,
+                        onSquareRightClick,
+                        onMouseOverSquare,
+                        onDrop,
+                        onMouseOutSquare,
+                        lastMoveStyles,
+                        inCheckStyles,
+                        rightClickStyles,
+                        onSquareClick
+                    }) => (
+                        <Chessboard
+                            boardStyle={boardStyles}
+                            position={position}
+                            onSquareRightClick={onSquareRightClick}
+                            squareStyles={Object.assign({}, squareStyles, lastMoveStyles, inCheckStyles, rightClickStyles)}
+                            onMouseOverSquare={onMouseOverSquare}
+                            onDrop={onDrop}
+                            onMouseOutSquare={onMouseOutSquare}
+                            onSquareClick={onSquareClick}
+                        />
+                    )}
+                </WithValidation>
+                <Clock />
+            </div>
         </div>
     )
 }
@@ -169,6 +173,5 @@ export const Game = () => {
 const boardStyles = {
     borderRadius: '5px',
     boxShadow: `0 5px 15px rgba(0, 0, 0, 0.5)`,
-    margin: 'auto',
-    paddingTop: '5%'
+    margin: 'auto'
 }

@@ -1,0 +1,57 @@
+.time {
+    font-size: 3.2em;
+    font-weight: bold;
+    padding: 0 2vmin;
+    color: #e6e6fa;
+}
+
+.clock-container {
+    display: inline-block;
+    position: absolute;
+    top: 33%;
+    right: 3.5%;
+    /* background-color: #191970; */
+}
+
+.icons {
+    margin-left: 10px;
+    width: 90%;
+    display: inline-flex;
+    color: white;
+    background-color: #191970;
+    justify-content: space-around;
+}
+
+.sep {
+    position: relative;
+    bottom: 3px;
+}
+
+.draw, .resign {
+    padding: 0 4px;
+}
+
+.draw {
+    font-size: 1.5em;
+}
+
+.resign {
+    /* position: relative; */
+    padding-top: 5px;
+}
+
+.draw:hover, .resign:hover {
+    cursor: pointer;
+    background-color: #3cb371;
+}
+
+
+
+.clock-top, .clock-bottom {
+
+}
+
+.active {
+
+}
+
